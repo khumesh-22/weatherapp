@@ -7,8 +7,13 @@ function App() {
   const apiKey = "f56f24967aaf51182d1d4df628297c6d";
   const [inputCity, setInputCity] = useState("");
   const [data, setdata] = useState([]);
+const [errorMesage,setErrorMessage] = useState("")
+
+const [loading,setLoading] = useState(false)
+
   const getWeatherDetails = (cityName) => {
-    if (!cityName) return;
+    setLoading(true)
+    
     const apiURL =
       "https://api.openweathermap.org/data/2.5/weather?q=" +
       cityName +
@@ -17,15 +22,21 @@ function App() {
     axios
       .get(apiURL)
       .then((res) => {
-        console.log("response", res.data);
+        // console.log("response", res.data);
+         setLoading(false)
+         setInputCity("")
+         setErrorMessage("")
         setdata(res.data);
       })
       .catch((err) => {
+         setLoading(false)
+         setInputCity("")
+         setErrorMessage(cityName + " " +err?.response?.data?.message)
         console.log("err", err);
       });
   };
   const handleChangeInput = (e) => {
-    console.log("value", e.target.value);
+    // console.log("value", e.target.value);
     setInputCity(e.target.value);
   };
   const handleSerch = () => {
@@ -33,7 +44,8 @@ function App() {
   };
   useEffect(() => {
     getWeatherDetails("delhi");
-  }, [inputCity]);
+  }, []);
+
 
   return (
     <div className="col-md-12">
@@ -45,15 +57,19 @@ function App() {
             className="form-control"
             value={inputCity}
             onChange={handleChangeInput}
+            required
           />
           <button
             className="btn btn-primary"
             type="button"
             onClick={handleSerch}
+            disabled={inputCity?false:true}
+            // style={{"cursor":!inputCity?"pointer":"not-allowed"}}
           >
             {" "}
-            Search
+            {loading?"Loading...":"Search"}
           </button>
+          <h1 style={{"color":"red"}}>{errorMesage}</h1>
         </div>
       </div>
 
